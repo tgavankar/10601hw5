@@ -88,8 +88,19 @@ P(X|\Theta) &=& \sum_{Z} P(x_1, ..., x_T, z_1, ... z_T)\\
 Since $Z$ has $T$ elements, and $z_t \in \{1..K\}$, this means that there are a total of $T^K$ different $Z$ vectors that have to be inspected. Since we can computer $P(X,Z|\Theta$ in $O(1)$, this means that the total runtime will be $O(T^K)$, bottlenecked by the M step. 
 
 \part{2}
+\begin{eqnarray*}
+\xi(z_{t-1}, z_t) &=& P(z_{t-1},z_t|X)\\
+&=& \frac{P(z_{t-1},z_t,X)}{P(X)}\\
+&=& \frac{P(z_{t-1},z_t,x_1,...x_{t-1},x_t,...x_T)}{P(X)}\\
+&=& \frac{P(z_t, x_t|x_1,...x_{t-1},z_{t-1})P(x_1,...x_{t-1},z_{t-1})P(x_t,...,x_T|z_t)}{P(X)}\\
+&=& \frac{\alpha(z_{t-1})P(z_t, x_t|x_1,...x_{t-1},z_{t-1})P(x_t,...,x_T|z_t)}{P(X)}\\
+&=& \frac{\alpha(z_{t-1})P(x_t|z_t)P(z_t|z_{t-1})\beta(z_t)}{P(X)}\\
+\end{eqnarray*}
+
+Without loss of generality, solve for $\beta$ in terms alpha, and then plug it into $\sum_j\alpha_t(j)\beta_t(j)$. 
 
 \part{3}
+The priors cannot change with subsequent updates of the EM algorithm because they are considered base cases, and you perform the algorithm until it converges. You do not modify base cases, and so the priors can never change. 
 
 \question{2.c}{Hidden Markov Models: A Coin Game}
 \part{1}
@@ -119,6 +130,8 @@ STTT &  &  &  &  &  &  & 0.5 & 0.5 &  &  &  &  &  &  &  &  \\ \hline
 }
 
 The values of $0.3$ were obtained from $0.6 * 0.5$, because Brenden has a $0.6$ chance of tossing the next coin, and the values of $0.2$ were similarly from $0.4 * 0.5$, where Brenden has a $0.4$ chance of losing the cointoss. 
+
+The values of $0.5$ are the fair coin toss by Selen. Since her switch-coin requirement depends on what she tosses, that is encoded in where the transitions are actually present. 
 
 \part{2}
 Since you are given an observed list of coin flips, let's call that collection $O = [O_1, ..., O_t]$. We want to find the most probable path $Q^*$ such that $P(Q^*|O) = argmax_QP(Q|O)$. To do this, we want to find $\delta_t(i) = max_{q_1...q_{t-1}} p(q_1...q_{t-1} \wedge q_t = s_i \wedge O_1...O_t)$. To find this, we simply directly apply the Viterbi algorithm (dynamic programming) to get the path defined by $argmax_j \delta_t(j)$, as that will have the path for $P(Q^*|O)$, and will give us the most probable path (and most probable winner). 
@@ -152,10 +165,9 @@ We define the transition function as:\\
 $T'((s, s_1, ..., s_{k-1}), a, s'') = P(s', a, s, s_1, ..., s_{k-1})$ if $s'' = (s', s, s_1, ..., s_{k-2})$, or 0 otherwise.\\
 This transition function comes from the fact that when transitioning to the new state, the history must be preserved correctly via shifting. The 0 transition probability is used for cases where the history is not correctly preserved.
 
-There is a bijection between M and M'. So, we have demonstrated how to convert a k-order MDP to a first-order MDP. This conversion is similar to the process of converting NFAs (non-deterministic finite automata) to DFAs (deterministic automata), and so both suffer from the issue that the state space grows exponentially during conversion. 
-
 To convert the reward function, R, we note that R is a function of the current state only in S, and we have that information in the representation of $S'$, so we can say that $R'((s_{k-1}, ..., s_1)) = R(s)$. 
 
+There is a bijection between M and M'. So, we have demonstrated how to convert a k-order MDP to a first-order MDP. This conversion is similar to the process of converting NFAs (non-deterministic finite automata) to DFAs (deterministic automata), and so both suffer from the issue that the state space grows exponentially during conversion. 
 
 
 \part{2.a}
@@ -184,40 +196,40 @@ There are two action decision points (two actions available on S1 and two action
 
 This route will be with the action $S1 \rightarrow S2$ and $S2 \rightarrow S3$ being chosen.
 \begin{eqnarray*}
-J^*(S1) = 3 + 0.8*(1.0 * J^*(S2))\\
-J^*(S2) = 5 + 0.8*(0.3*J^*(S2) + 0.7*J^*(S3))\\
-J^*(S3) = 4\\
-J^*(S4) = 6 + 0.8*(1.0 * J^*(S4))\\
+J^*(S1) &=& 3 + 0.8*(1.0 * J^*(S2))\\
+J^*(S2) &=& 5 + 0.8*(0.3*J^*(S2) + 0.7*J^*(S3))\\
+J^*(S3) &=& 4\\
+J^*(S4) &=& 6 + 0.8*(1.0 * J^*(S4))\\
 \end{eqnarray*}
 
 Solving this system gives $J^*(S2) = 9.52632$.
 
 This route will be with the action $S1 \rightarrow S3$ and $S2 \rightarrow S3$ being chosen.
 \begin{eqnarray*}
-J^*(S1) = 3 + 0.8*(1.0 * J^*(S3))\\
-J^*(S2) = 5 + 0.8*(0.3*J^*(S2) + 0.7*J^*(S3))\\
-J^*(S3) = 4\\
-J^*(S4) = 6 + 0.8*(1.0 * J^*(S4))\\
+J^*(S1) &=& 3 + 0.8*(1.0 * J^*(S3))\\
+J^*(S2) &=& 5 + 0.8*(0.3*J^*(S2) + 0.7*J^*(S3))\\
+J^*(S3) &=& 4\\
+J^*(S4) &=& 6 + 0.8*(1.0 * J^*(S4))\\
 \end{eqnarray*}
 
 Solving this system gives $J^*(S2) = 9.52632$.
 
 This route will be with the action $S1 \rightarrow S2$ and $S2 \rightarrow S4$ being chosen.
 \begin{eqnarray*}
-J^*(S1) = 3 + 0.8*(1.0 * J^*(S2))\\
-J^*(S2) = 5 + 0.8*(0.2*J^*(S2) + 0.8*J^*(S4))\\
-J^*(S3) = 4\\
-J^*(S4) = 6 + 0.8*(1.0 * J^*(S4))\\
+J^*(S1) &=& 3 + 0.8*(1.0 * J^*(S2))\\
+J^*(S2) &=& 5 + 0.8*(0.2*J^*(S2) + 0.8*J^*(S4))\\
+J^*(S3) &=& 4\\
+J^*(S4) &=& 6 + 0.8*(1.0 * J^*(S4))\\
 \end{eqnarray*}
 
 Solving this system gives $J^*(S2) = 28.8095$
 
 This route will be with the action $S1 \rightarrow S3$ and $S2 \rightarrow S4$ being chosen.
 \begin{eqnarray*}
-J^*(S1) = 3 + 0.8*(1.0 * J^*(S3))\\
-J^*(S2) = 5 + 0.8*(0.2*J^*(S2) + 0.8*J^*(S4))\\
-J^*(S3) = 4\\
-J^*(S4) = 6 + 0.8*(1.0 * J^*(S4))\\
+J^*(S1) &=& 3 + 0.8*(1.0 * J^*(S3))\\
+J^*(S2) &=& 5 + 0.8*(0.2*J^*(S2) + 0.8*J^*(S4))\\
+J^*(S3) &=& 4\\
+J^*(S4) &=& 6 + 0.8*(1.0 * J^*(S4))\\
 \end{eqnarray*}
 
 Solving this system gives $J^*(S2) = 28.8095$
